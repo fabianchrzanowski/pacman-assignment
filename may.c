@@ -34,22 +34,27 @@ void draw_board() {
     for (int i = 0; i < HEIGHT; i++) {
         for (int j = 0; j < WIDTH; j++) {
             if (i == y && j == x) {
-                printf("C"); // Pacman character
+                printf("\033[0;33mC");  // Pacman character
+                printf("\033[0m");
             } else {
-                printf("."); // Empty space
+                printf("\033[0;34m.");
+                printf("\033[0m");
+                //printf("."); // Empty space
             }
         }
         printf("\n");
+
     }
+    printf("Press 'q' to leave.");
 }
 
 int main() {
     set_raw_mode();
-
+    char key;
     x = WIDTH / 2;
     y = HEIGHT / 2;
 
-    while (1) {
+    while (key != 'q') {
         draw_board();
 
         char key = get_key();
@@ -70,6 +75,24 @@ int main() {
                 break;
             case 'q':
                 exit(0);
+        
+        }
+        if (x >= WIDTH)
+        {
+            x = WIDTH - 1;
+        }
+        else if (x <= 0)
+        {
+            x = 0;
+        }
+        
+        if (y >= HEIGHT)
+        {
+            y = HEIGHT - 1;
+        }
+        else if (y <= 0)
+        {
+            y = 0;
         }
     }
 
