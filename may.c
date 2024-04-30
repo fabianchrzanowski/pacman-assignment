@@ -13,12 +13,6 @@ struct game
     char pixels[100][100];      // width == how many before \n and height how many \n
 };
 
-// Function to get right of the assigned color
-void no_color()
-{
-    printf("\033[0m");
-}
-
 // Function to clear the terminal screen
 void clear_screen() {
     printf("\033[H\033[J");
@@ -79,7 +73,7 @@ int main() {
     int heightNum = 1;
     int widthNum = 0;
 
-    // Counting the size of the board to know what size of array to make
+    // Counting the size of the board
     while ((ch = fgetc(mazefile)) != EOF) 
     {
         
@@ -97,154 +91,86 @@ int main() {
     widthNum = (numofchar+heightNum)/heightNum;     // width of the maze
 
     char board[heightNum][widthNum];
-    char maze[heightNum][widthNum];
 
     // Setting the reading point back to the start of the file
     fseek(mazefile, 0, SEEK_SET);
     
     // Reading the maze from file and storing in board array
     int i = 0, j = 0;
-    int dots, points;
+    
     for(i = 0; i < heightNum; i++)
     {
         for (j = 0; j < widthNum; j++)
         {
             
-            char key;
-            key = fgetc(mazefile);
-            if (key == ' ')
-            {
-                board[i][j] = '.';
-                dots++;
-            }
-            else 
-            {
-                board[i][j] = key;    // board is maze with points
-                    
-            }
-            maze[i][j] = key;   // maze is just clear maze from txt file
             
+            
+            board[i][j] = fgetc(mazefile);
+            
+            //fscanf(mazefile, "%c", &board[i][j]);
+            //board[i][j] = fgetc(mazefile);
+            // ch = fgetc(mazefile);
+            // while (fgetc(mazefile) == '\n') {  // Skip over newline characters
+            //     ch = fgetc(mazefile);
+            // }
+            // board[i][j] = ch;
         }
     }
     fclose(mazefile);
 
-    // Calculating maximum possible points for given board from dots
-    points = dots*10;
-
     int x = widthNum/2, y = heightNum/2;    //starting position of pacman (middle)
-    int score = 0;
 
     // Main game process
     while (exit == 0) {
 
-        // allows for screen refreshing without printing another screen        
         clear_screen();
 
         for (int i = 0; i < heightNum; i++) {
             for (int j = 0; j < widthNum; j++) {
                 if (i == y && j == x) {
-                    printf("\033[0;33mC");  // Pacman character // yellow
-                    no_color();
-                    if (board[i][j] == '.')
-                    {
-                        board[i][j] = ' ';
-                        score += 10;
-                    }
-                    
-
+                    printf("\033[0;33mC");  // Pacman character
+                    printf("\033[0m");  // Command to remove the color
                 } else {
-                    if (board[i][j] == '.')
-                    {
-                        printf("%c", board[i][j]);
-                    }
-                    else
-                    {
-                        printf("\033[0;34m%c", board[i][j]);     //blue //printf("■\n");
-                        no_color();
-                    }
-            
-
-
-                    // printf("\033[0;34m%c", board[i][j]);      //printf("■\n");
-                    // printf("\033[0m");
+                    printf("\033[0;34m%c", board[i][j]);      //printf("■\n");
+                    printf("\033[0m");
                 }
             }
             //printf("\n");
 
         }
-        printf("\nCurrent Score: %d\n", score);
+        printf("\nPress 'q' to leave.\n");
 
         printf("height: %d, Width: %d\n", heightNum, widthNum);
-
-        if (score == points)
-        {
-            clear_screen();
-            printf("\nYou Won!\nYour Score: %d", score);
-        }
-        printf("\nPress 'q' to leave.\n");
 
         char key = get_key();
         
         // Move pacman with WASD keys
-        // Keeping pacman coordinates inside the given board
         switch (key) {
             case 'w':
-                if (maze[y-1][x] == ' ')
+                if (board[y-1][x] == ' ')
                 {
                     y--;
-                }
-                else if (y >= heightNum)
-                { 
-                    y = heightNum - 1; 
-                }
-                else if (y <= 0)
-                {
-                    y = 0;
                 }
                 break;
 
             case 'a':
-                if (maze[y][x-1] == ' ')
+                if (board[y][x-1] == ' ')
                 {
                     x--;
-                }
-                else if (x >= widthNum)
-                {
-                    x = widthNum - 1;
-                }
-                else if (x <= 0)
-                {
-                    x = 0;
                 }
                 break;
 
             case 's':
-                if (maze[y+1][x] == ' ')
+                if (board[y+1][x] == ' ')
                 {
                     y++;
-                }
-                else if (y >= heightNum) 
-                { 
-                    y = heightNum - 1; 
-                }
-                else if (y <= 0)
-                {
-                    y = 0;
                 }
                 break;
 
             case 'd':
-                if (maze[y][x+1] == ' ')
+                if (board[y][x+1] == ' ')
                 {
                     x++;
-                }
-                else if (x >= widthNum)
-                {
-                    x = widthNum - 1;
-                }
-                else if (x <= 0)
-                {
-                    x = 0;
                 }
                 break;
 
@@ -252,7 +178,29 @@ int main() {
                 clear_screen();     
                 exit = 1;
                 break;
+        
+        }
+
+        // Keeping pacman coordinates inside the given board
+        if (x >= widthNum) 
+        {
+            x = widthNum - 1;
+        }
+        else if (x <= 0) 
+        {
+            x = 0;
+        }
+        
+
+        if (y >= heightNum) 
+        { 
+            y = heightNum - 1; 
+        }
+        else if (y <= 0)
+        {
+            y = 0;
         }
     }
+
     return 0;
 }
